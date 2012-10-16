@@ -1,0 +1,24 @@
+package com.ubs.gtp.data.domain.dao;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ubs.gtp.data.domain.AbstractHibernateDAO;
+import com.ubs.gtp.data.domain.NewsDto;
+
+
+/**
+ * Manages {@link NewsDto}.
+ *
+ * @author Mihkel Aamer
+ * @since 0.4
+ */
+@Repository
+@Transactional
+public class NewsDao extends AbstractHibernateDAO<NewsDto> {
+	
+	public NewsDao() {
+		super(NewsDto.class);		
+	}
+
+}

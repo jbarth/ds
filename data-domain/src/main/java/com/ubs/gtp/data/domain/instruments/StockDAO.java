@@ -1,0 +1,50 @@
+package com.ubs.gtp.data.domain.instruments;
+
+import com.google.common.base.Optional;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.criterion.Property;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ubs.gtp.data.domain.AbstractHibernateDAO;
+
+import java.util.List;
+
+/**
+ * Manages {@link StockDto}.
+ *
+ * @author Alexandra.Ojha
+ * @author Jakub D Kozlowski
+ * @since 0.1
+ */
+@Repository
+@Transactional
+public class StockDAO extends AbstractHibernateDAO<StockDto> {
+
+    /**
+     * Instantiates a new stocks dao.
+     */
+    public StockDAO() {
+        super(StockDto.class);
+    }
+
+    /**
+     * Gets the {@link StockDto} by ric.
+     *
+     * @param ric the ric.
+     * @return the {@link StockDto} for this ric or {@link Optional#absent()}.
+     */
+    public Optional<StockDto> getByRic(final String ric) {
+        final Property ricProperty = Property.forName("ric");
+        final Criteria q = getCurrentSession().createCriteria(StockDto.class).add(ricProperty.eq(ric.toLowerCase()).ignoreCase());
+        return Optional.fromNullable((StockDto) q.uniqueResult());
+    }
+
+    /**
+     * Deletes all {@link StockDto}s from the database.
+     */
+    public void deleteAll() {
+        getCurrentSession().createQuery("DELETE FROM " + StockDto.class.getName()).executeUpdate();
+    }
+}

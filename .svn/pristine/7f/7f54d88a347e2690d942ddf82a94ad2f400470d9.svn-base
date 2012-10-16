@@ -1,0 +1,49 @@
+package com.ubs.gtp.data.resource.trade;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Random;
+
+
+/**
+ * Controller for the trade gateway which executes buy and sell trades
+ *
+ * @author Mihkel Aamer
+ * @since 0.1
+ */
+@Controller
+public final class OrderController {
+
+    private final Random random = new Random();
+
+    @ResponseBody
+    @RequestMapping(value = "/trade/buy", method = RequestMethod.POST)
+    public OrderReplyDto executeBuyOrder(final @RequestBody OrderDto order) {
+
+        if (random.nextDouble() > 0.1) {
+            double price = (random.nextDouble() + 1) * 10;
+            return new OrderReplyDto(true, new BigDecimal(price).setScale(2, RoundingMode.HALF_DOWN));
+        } else {
+            return new OrderReplyDto(false, null);
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/trade/sell", method = RequestMethod.POST)
+    public OrderReplyDto executeSellOrder(@RequestBody OrderDto order) {
+        // Process the buy request and generate response	
+        // Return success 90% of the time
+        if (random.nextDouble() > 0.1) {
+            double price = (random.nextDouble() + 1) * 10;
+            return new OrderReplyDto(true, new BigDecimal(price).setScale(2, RoundingMode.HALF_DOWN));
+        } else {
+            return new OrderReplyDto(false, null);
+        }
+    }
+}

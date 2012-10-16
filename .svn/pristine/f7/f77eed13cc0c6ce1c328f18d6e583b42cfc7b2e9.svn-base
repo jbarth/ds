@@ -1,0 +1,107 @@
+package com.ubs.gtp.security;
+
+import org.springframework.stereotype.Component;
+
+import com.ubs.gtp.security.objects.AdvisorLogin;
+import com.ubs.gtp.security.objects.ClientLogin;
+import com.ubs.gtp.security.util.HibernateUtil;
+
+/**
+ * This class is used to create, update and delete Client Advisor and Client login credentials.
+ *
+ * @author Felix.Pflanzl
+ * @since 0.1
+ */
+@Component
+public class UserRepository {
+
+    public AdvisorLogin getAdvisor(String username) {
+    	AdvisorLogin advisor;
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        advisor = (AdvisorLogin) hibernateSession.get(AdvisorLogin.class, username);
+        hibernateSession.getTransaction().commit();
+        return advisor;
+    }
+
+    public AdvisorLogin createAdvisor(AdvisorLogin advisor) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        hibernateSession.save(advisor);
+        hibernateSession.getTransaction().commit();
+        return advisor;
+    }
+
+    public AdvisorLogin updateAdvisor(AdvisorLogin advisor) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        AdvisorLogin checkIfAdvisorExists;
+        checkIfAdvisorExists = (AdvisorLogin) hibernateSession.get(AdvisorLogin.class, advisor.getUsername());
+        if (checkIfAdvisorExists == null) {
+            hibernateSession.getTransaction().commit();
+            return null;
+        }
+        hibernateSession.update(advisor);
+        hibernateSession.getTransaction().commit();
+        return advisor;
+    }
+
+    public boolean deleteAdvisor(AdvisorLogin advisor) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        AdvisorLogin checkIfAdvisorExists;
+        checkIfAdvisorExists = (AdvisorLogin) hibernateSession.get(AdvisorLogin.class, advisor.getUsername());
+        if (checkIfAdvisorExists == null) {
+            hibernateSession.getTransaction().commit();
+            return false;
+        }
+        hibernateSession.delete(advisor);
+        hibernateSession.getTransaction().commit();
+        return true;
+    }
+
+    public ClientLogin getClient(String username) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        ClientLogin client;
+        client = (ClientLogin) hibernateSession.get(ClientLogin.class, username);
+        hibernateSession.getTransaction().commit();
+        return client;
+    }
+
+    public ClientLogin createClient(ClientLogin client) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        hibernateSession.save(client);
+        hibernateSession.getTransaction().commit();
+        return client;
+    }
+
+    public ClientLogin updateClient(ClientLogin client) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        ClientLogin checkIfClientExists;
+        checkIfClientExists = (ClientLogin) hibernateSession.get(ClientLogin.class, client.getUsername());
+        if (checkIfClientExists == null) {
+            hibernateSession.getTransaction().commit();
+            return null;
+        }
+        hibernateSession.update(client);
+        hibernateSession.getTransaction().commit();
+        return client;
+    }
+
+    public boolean deleteClient(ClientLogin client) {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        ClientLogin checkIfClientExists;
+        checkIfClientExists = (ClientLogin) hibernateSession.get(ClientLogin.class, client.getUsername());
+        if (checkIfClientExists == null) {
+            hibernateSession.getTransaction().commit();
+            return false;
+        }
+        hibernateSession.delete(client);
+        hibernateSession.getTransaction().commit();
+        return true;
+    }
+}

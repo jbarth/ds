@@ -1,0 +1,60 @@
+package com.ubs.gtp.data.resource.trade;
+
+import java.math.BigDecimal;
+
+/**
+ * Dto representing an incoming trade (same for both buy or sell)
+ *
+ * @author Mihkel Aamer
+ * @since 0.1
+ */
+public final class OrderDto {
+
+    private int clientID;
+    private int portfolioID;
+    private String stockID;
+    private BigDecimal volume;
+
+    public OrderDto() {
+    }
+
+    public OrderDto(final int clientID, final int portfolioID, final String stockID, final BigDecimal volume) {
+    	this.portfolioID = portfolioID;
+        this.clientID = clientID;
+        this.stockID = stockID;
+        this.volume = volume;
+    }
+    
+    public int getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(int clientID) {
+        this.clientID = clientID;
+    }
+
+    public int getPortfolioID() {
+		return portfolioID;
+	}
+
+	public void setPortfolioID(int portfolioID) {
+		this.portfolioID = portfolioID;
+	}
+	
+    public String getStockID() {
+        return stockID;
+    }
+
+    public void setStockID(String stockID) {
+        this.stockID = stockID;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
+    }
+    
+}

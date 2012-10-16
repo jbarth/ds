@@ -1,0 +1,43 @@
+package com.ubs.gtp.data.domain.instruments;
+
+import org.hibernate.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ubs.gtp.data.domain.AbstractHibernateDAO;
+
+import java.util.List;
+
+/**
+ * Manages {@link StockDto}.
+ *
+ * @author Alexandra.Ojha
+ * @since 0.1
+ */
+@Repository
+@Transactional
+public class StockDAO extends AbstractHibernateDAO<StockDto> {
+
+    /**
+     * Instantiates a new stocks dao.
+     */
+    public StockDAO() {
+        super(StockDto.class);
+    }
+
+    /**
+     * Gets the {@link StockDto} by ric.
+     *
+     * @param ric the ric
+     * @return the {@link StockDto} for this ric.
+     */
+    public StockDto getByRic(final String ric) {
+        final Query q = this.getCurrentSession().createQuery("FROM " + this.clazz.getName() + " WHERE ric=:ric").setParameter("ric", ric);
+        final List<StockDto> results = q.list();
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
+    }
+}

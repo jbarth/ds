@@ -1,0 +1,182 @@
+package com.ubs.gtp.data.domain.client;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Entity for {@code CLIENT} table in the database.
+ *
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Entity
+@Table(name = "CLIENT")
+public class ClientDto implements Serializable {
+
+    private static final long serialVersionUID = 1355933269423003948L;
+
+    @Id
+    @Column(name = "CLIENT_ID", nullable = false)
+    @GeneratedValue(generator = "increment")
+    @GenericGenerator(name = "increment", strategy = "increment")
+    private int clientId;
+
+    @Column(name = "CLIENT_NAME", nullable = false)
+    private String name;
+
+    @Column(name = "CLIENT_SURNAME", nullable = false)
+    private String surname;
+
+    @JsonIgnore
+    @Column(name = "IS_FIRST_LOGIN", nullable = false)
+    private Boolean isFirstLogin;
+
+    @Column(name = "BALANCE", nullable = false)
+    private BigDecimal balance;
+    
+    @OneToOne(optional = false)
+    @JoinColumn(name = "ADVISOR_ID", nullable = false)
+    private AdvisorDto advisor;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CLIENT_ID")
+    private Set<PortfolioDto> portfolios;
+
+    /**
+     * Empty constructor.
+     */
+    public ClientDto() {
+    }
+
+    /**
+     * Gets the clientId.
+     *
+     * @return the clientId.
+     */
+    public int getClientId() {
+        return clientId;
+    }
+
+    /**
+     * Sets the clientId.
+     *
+     * @param clientId new clientId.
+     */
+    public void setClientId(final int clientId) {
+        this.clientId = clientId;
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name new name.
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the surname.
+     *
+     * @return the surname.
+     */
+    public String getSurname() {
+        return surname;
+    }
+
+    /**
+     * Sets the surname.
+     *
+     * @param surname new surname.
+     */
+    public void setSurname(final String surname) {
+        this.surname = surname;
+    }
+
+    /**
+     * Gets isFirstLogin.
+     *
+     * @return the isFirstLogin.
+     */
+    public Boolean getIsFirstLogin() {
+        return isFirstLogin;
+    }
+
+    /**
+     * Sets isFirstLogin.
+     *
+     * @param isFirstLogin new isFirstLogin.
+     */
+    public void setIsFirstLogin(final Boolean isFirstLogin) {
+        this.isFirstLogin = isFirstLogin;
+    }
+
+    /**
+     * Gets the balance.
+     *
+     * @return the balance.
+     */
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    /**
+     * Sets the balance.
+     *
+     * @param balance new balance.
+     */
+    public void setBalance(final BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    /**
+     * Gets the advisor.
+     *
+     * @return the advisor.
+     */
+    public AdvisorDto getAdvisor() {
+        return advisor;
+    }
+
+    /**
+     * Sets the advisor.
+     *
+     * @param advisor new advisor.
+     */
+    public void setAdvisor(final AdvisorDto advisor) {
+        this.advisor = advisor;
+    }
+
+    /**
+     * Gets the portfolios.
+     *
+     * @return the portfolios.
+     */
+    public Set<PortfolioDto> getPortfolios() {
+        return portfolios;
+    }
+
+    /**
+     * Sets the portfolios.
+     *
+     * @param portfolios new portfolios.
+     */
+    public void setPortfolios(final Set<PortfolioDto> portfolios) {
+        this.portfolios = portfolios;
+    }
+}

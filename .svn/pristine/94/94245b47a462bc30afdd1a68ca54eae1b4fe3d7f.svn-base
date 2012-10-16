@@ -1,0 +1,136 @@
+package com.ubs.gtp.data.domain.client;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
+
+/**
+ * Entity for {@code PORTFOLIO} table in the database.
+ *
+ * @author Joshua.Barth
+ * @author Mihkel Aamer
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Entity
+@Table(name = "PORTFOLIO")
+public class PortfolioDto implements Serializable {
+
+    private static final long serialVersionUID = 1355234269423003948L;
+
+    @Id
+    @Column(name = "PORTFOLIO_ID")
+    @GeneratedValue(generator = "increment")
+    @GenericGenerator(name = "increment", strategy = "increment")
+    private Integer portfolioId;
+
+    @Column(name = "REAL", nullable = true)
+    private Boolean real;
+
+    @Column(name = "START_DATE")
+    private Date startdate;
+
+    @OneToMany(mappedBy = "portfolio", fetch = FetchType.EAGER)
+    private Set<PortfolioItemDto> items;
+
+    /**
+     * Empty constructor.
+     */
+    public PortfolioDto() {
+    }
+
+    /**
+     * Gets the portfolioId.
+     *
+     * @return the portfolioId.
+     */
+    public Integer getPortfolioId() {
+        return portfolioId;
+    }
+
+    /**
+     * Sets the portfolioId.
+     *
+     * @param portfolioId new portfolioId.
+     */
+    public void setPortfolioId(final Integer portfolioId) {
+        this.portfolioId = portfolioId;
+    }
+
+    /**
+     * Gets the value of real.
+     *
+     * @return the value of real.
+     */
+    public Boolean getReal() {
+        return real;
+    }
+
+    /**
+     * Sets real.
+     *
+     * @param real new value of real.
+     */
+    public void setReal(final Boolean real) {
+        this.real = real;
+    }
+
+    /**
+     * Gets the startdate.
+     *
+     * @return the startdate.
+     */
+    public Date getStartdate() {
+        return startdate;
+    }
+
+    /**
+     * Sets the startdate.
+     *
+     * @param startdate the startdate.
+     */
+    public void setStartdate(final Date startdate) {
+        this.startdate = startdate;
+    }
+
+
+//
+//    /**
+//     * Gets the client.
+//     *
+//     * @return the client.
+//     */
+//    public ClientDto getClient() {
+//        return client;
+//    }
+//
+//    /**
+//     * Sets the client.
+//     *
+//     * @param client new client.
+//     */
+//    public void setClient(final ClientDto client) {
+//        this.client = client;
+//    }
+
+    /**
+     * Gets the items.
+     *
+     * @return the items.
+     */
+    public Set<PortfolioItemDto> getItems() {
+        return items;
+    }
+
+    /**
+     * Sets the items.
+     *
+     * @param items new items.
+     */
+    public void setItems(final Set<PortfolioItemDto> items) {
+        this.items = items;
+    }
+}

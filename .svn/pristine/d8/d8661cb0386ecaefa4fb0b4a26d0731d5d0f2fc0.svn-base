@@ -1,0 +1,43 @@
+package com.ubs.gtp.data.domain.dao;
+
+import com.ubs.gtp.data.domain.AbstractHibernateDAO;
+import com.ubs.gtp.data.domain.client.StockHistoryDto;
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.*;
+import org.hibernate.sql.JoinType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Predicate;
+import java.util.List;
+
+/**
+ * Manages {@link StockHistoryDto}.
+ *
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Repository
+@Transactional
+public class StockHistoryDao extends AbstractHibernateDAO<StockHistoryDto> {
+
+    public StockHistoryDao() {
+        super(StockHistoryDto.class);
+    }
+
+    /**
+     * Gets all {@link StockHistoryDto}s for this {@code ric}.
+     *
+     * @param ric stock to get the {@link StockHistoryDto}s for..
+     * @return all {@link StockHistoryDto}s for this {@code ric}.
+     */
+    public List<StockHistoryDto> getByRic(final String ric) {
+        return this.getCurrentSession()
+                .createQuery("FROM StockHistoryDto as sh join sh.stock as s WHERE lower(s.ric)=lower(:ric)").setParameter("ric", ric).list();
+    }
+}

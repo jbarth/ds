@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:data-application-config.xml"/>
+
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="ignoreAcceptHeader" value="true"/>
+        <property name="favorPathExtension" value="true"/>
+        <property name="defaultContentType" value="application/json"/>
+        <property name="mediaTypes">
+            <map>
+                <entry key="jsonp" value="application/javascript"/>
+                <entry key="json" value="application/json"/>
+            </map>
+        </property>
+        <property name="defaultViews">
+            <list>
+                <bean class="com.ubs.gtp.data.jsonp.MappingJacksonJsonpView"/>
+                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- START: updatePricesJob -->
+    <bean name="updatePricesJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass" value="com.ubs.gtp.data.source.UpdatePricesJob"/>
+    </bean>
+
+    <bean id="updatePricesJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="updatePricesJob"/>
+        <property name="repeatInterval" value="5000"/>
+        <property name="startDelay" value="1000"/>
+    </bean>
+
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails">
+            <list>
+                <ref bean="updatePricesJob"/>
+            </list>
+        </property>
+        <property name="triggers">
+            <list>
+                <ref bean="updatePricesJobTrigger"/>
+            </list>
+        </property>
+    </bean>
+    <!-- END: updatePricesJob -->
+</beans>

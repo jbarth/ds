@@ -1,0 +1,83 @@
+package com.ubs.gtp.data.domain.instruments.live;
+
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+
+import com.google.common.base.Optional;
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+
+public class LivePriceServiceImpl implements LivePriceService {
+	@Autowired
+	protected StockDAO stockDao;
+
+	public LivePriceServiceImpl() {
+		super();
+	}
+
+	public LivePriceServiceImpl(StockDAO stockDao) {
+		this.stockDao = stockDao;
+	}
+
+	public void loadStocksFromFile(String filename) {
+
+		try {
+			// Open the file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Get the object of DataInputStream
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String ricFromFile;
+
+			// Read File Line By Line
+			while ((ricFromFile = br.readLine()) != null) {
+				Optional<StockDto> stockOptional = this.stockDao
+						.getByRic(ricFromFile);
+				if (stockOptional.isPresent()) {
+					StockDto stock = stockOptional.get();
+					BigDecimal price = new BigDecimal(
+							StockPricev2.price(ricFromFile));
+					stock.setPrice(price);
+					if (price.compareTo(stock.getYearlow()) < 0) {
+						stock.setYearlow(price);
+					}
+					if (price.compareTo(stock.getYearhigh()) > 0) {
+						stock.setYearhigh(price);
+					}
+					stock.setTimestamp(Calendar.getInstance());
+					stockDao.update(stock);
+				} else {
+					stockDao.create(new StockDto(ricFromFile, new BigDecimal(
+							StockPricev2.price(ricFromFile)), StockPricev2
+							.name(ricFromFile), Calendar.getInstance()));
+				}
+				// StockDto stock = new StockDto(ricFromFile, price,
+				// StockPricev2.name(ricFromFile), Calendar.getInstance());
+				// stockDao.create(stock);
+
+				// System.out.println(StockPrice.price(strLine));
+
+			}
+			// Close the input stream
+			in.close();
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+		List<StockDto> stocks = stockDao.getAll();
+		for(StockDto stock:stocks){
+			System.out.println(stock.toString());
+		}
+	}
+
+}

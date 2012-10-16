@@ -1,0 +1,56 @@
+package com.ubs.gtp.data.security.resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ubs.gtp.security.AuthenticationManager;
+import com.ubs.gtp.security.objects.ClientLogin;
+import com.ubs.gtp.security.wrapper.OldPasswordNewPassword;
+import com.ubs.gtp.security.wrapper.OldPinNewPin;
+
+/**
+ * Controller for managing client logins.
+ * 
+ * @author Willy Lai
+ * @since 0.1
+ */
+@Controller
+@RequestMapping(value = "/admin/client")
+public class AdminClientController {
+	
+	private static final transient Logger LOG = LoggerFactory.getLogger(AdminClientController.class);
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@RequestMapping(value = "/", method = RequestMethod.POST)
+	@ResponseBody
+	public String addClientLogin(@RequestBody ClientLogin clientLogin) {
+		return "";
+	}
+	
+	@RequestMapping(value = "/{username}/password", method = RequestMethod.PUT)
+	@ResponseBody
+	public String updateClientLoginPassword(@RequestBody OldPasswordNewPassword oldPwNewPw) {
+		return "";
+	}
+	
+	@RequestMapping(value = "/{username}/pin", method = RequestMethod.PUT)
+	@ResponseBody
+	public String updateClientLoginPin(@RequestBody OldPinNewPin oldPinNewPin) {
+		return "";
+	}
+	
+	@RequestMapping(value = "/{username}/failed_attempts", method = RequestMethod.PUT)
+	@ResponseBody
+	public String updateClientLoginFailedAttempts(@RequestBody OldPasswordNewPassword oldPwNewPw) {
+		return "";
+	}
+
+}

@@ -1,0 +1,53 @@
+package com.ubs.gtp.data.resource;
+
+import com.ubs.gtp.data.StockDtoFixtures;
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import com.ubs.gtp.data.resource.stock.StockController;
+import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+
+/**
+ * Tests {@link StockController}.
+ *
+ * @author Jakub D Kozlowski
+ * @since 0.4
+ */
+@MockWebApplication(name = "data")
+@RunWith(SpringJUnit4ClassRunner.class)
+@TransactionConfiguration(transactionManager = "transactionManager")
+@ContextConfiguration(locations = {"classpath:test-data-servlet.xml"}, loader = MockWebApplicationContextLoader.class)
+public class StockControllerTest extends AbstractTransactionalJUnit4SpringContextTests {
+
+    @Autowired
+    private StockDAO stocks;
+
+    @Autowired
+    private DispatcherServlet servlet;
+
+    @Test
+    public void testGetStocks() throws IOException, ServletException {
+
+        final StockDto stock = StockDtoFixtures.defaultStockDto();
+        stocks.create(stock);
+
+        final MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.GET.name(), "/stock");
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        servlet.service(request, response);
+        final String results = response.getContentAsString().trim();
+        Assert.assertTrue(!results.isEmpty());
+    }
+}

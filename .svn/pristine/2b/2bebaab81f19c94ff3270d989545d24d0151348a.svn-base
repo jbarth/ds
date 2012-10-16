@@ -1,0 +1,117 @@
+package com.ubs.gtp.data.resource.trade;
+
+import com.google.common.base.Optional;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ubs.gtp.data.domain.TransactionDao;
+import com.ubs.gtp.data.domain.TransactionDto;
+import com.ubs.gtp.data.domain.client.PortfolioDto;
+import com.ubs.gtp.data.domain.dao.ClientDao;
+import com.ubs.gtp.data.domain.dao.PortfolioDao;
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+
+/**
+ * Controller for the trade gateway which executes buy and sell trades
+ *
+ * @author Mihkel Aamer
+ * @since 0.1
+ */
+@Controller
+@Transactional
+@Repository
+public class OrderController {
+
+    @Autowired
+    private TransactionDao transactions;
+    @Autowired
+    private StockDAO stocks;
+    @Autowired
+    private ClientDao clients;
+    @Autowired
+    private PortfolioDao portfolios;
+
+    @Resource(name = "sessionFactory")
+    protected SessionFactory sessionFactory;
+
+//    @ResponseBody
+//    @RequestMapping(value = "/trade/get", method = RequestMethod.GET)
+//    public List<TransactionDto> getAllTx() {
+//    	return transactions.getAll();        
+//    }
+
+    @ResponseBody
+    @RequestMapping(value = "/trade/buy", method = RequestMethod.POST)
+    public OrderReplyDto executeBuyOrder(final @RequestBody OrderDto order) {
+        // TODO: Check somehow if this client is actually authorised to execute on that id
+        // Create a new transaction
+        TransactionDto newtx = new TransactionDto();
+        // Check if entered portfolio ID belongs to that client
+        if (!clients.getById(order.getClientID()).getPortfolios().contains(portfolios.getById(order.getPortfolioID()))) {
+            return new OrderReplyDto(false, null, "Porfolio does not belong to the client");
+        }
+        newtx.setPortfolioid(portfolios.getById(order.getPortfolioID()).getPortfolioId());
+
+        final Optional<StockDto> stockDto = stocks.getByRic(order.getStockID());
+        if (!stockDto.isPresent()) {
+            return new OrderReplyDto(false, null, "Unknown stock");
+        }
+
+        // Get the current price of stock, used as execution price
+        final BigDecimal currentprice = stockDto.get().getPrice();
+        newtx.setPrice(currentprice);
+        newtx.setQuantity(order.getVolume());
+
+        newtx.setStockid(stockDto.get().getId());
+        newtx.setTimestamp(new Date());
+        // TODO: Change this somehow
+        newtx.setMadebyfa(0);
+        transactions.create(newtx);
+        return new OrderReplyDto(true, currentprice, "test");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/trade/sell", method = RequestMethod.POST)
+    public OrderReplyDto executeSellOrder(@RequestBody OrderDto order) {
+        // TODO: Check somehow if this client is actually authorised to execute on that id
+        // Create a new transaction
+        TransactionDto newtx = new TransactionDto();
+        // Check if entered portfolio ID belongs to that client
+        if (!clients.getById(order.getClientID()).getPortfolios().contains(portfolios.getById(order.getPortfolioID()))) {
+            return new OrderReplyDto(false, null, "Porfolio does not belong to the client");
+        }
+
+        newtx.setPortfolioid(portfolios.getById(order.getPortfolioID()).getPortfolioId());
+        // Get the current price of stock, used as execution price
+
+        final Optional<StockDto> stockDto = stocks.getByRic(order.getStockID());
+        if (!stockDto.isPresent()) {
+            return new OrderReplyDto(false, null, "Unknown stock");
+        }
+
+        final BigDecimal currentprice = stockDto.get().getPrice();
+        newtx.setPrice(currentprice);
+        newtx.setQuantity(order.getVolume().multiply(new BigDecimal(-1)));
+        newtx.setStockid(stockDto.get().getId());
+        newtx.setTimestamp(new Date());
+        // TODO: Change this somehow
+        newtx.setMadebyfa(0);
+        transactions.create(newtx);
+        return new OrderReplyDto(true, currentprice, "Trade executed");
+    }
+}

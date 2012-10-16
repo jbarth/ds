@@ -1,0 +1,100 @@
+package com.ubs.gtp.data.resource.client;
+
+import com.google.common.base.Optional;
+import com.ubs.gtp.data.domain.client.AdvisorDto;
+import com.ubs.gtp.data.domain.client.ClientDto;
+import com.ubs.gtp.data.domain.client.LoginDto;
+import com.ubs.gtp.data.domain.dao.AdvisorDao;
+import com.ubs.gtp.data.domain.dao.ClientDao;
+import com.ubs.gtp.data.domain.dao.LoginDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Controller for the client resource.
+ *
+ * @author Joshua Barth
+ * @author Mihkel Aamer
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Controller
+@Transactional
+@Repository
+public class ClientController {
+
+    @Autowired
+    private ClientDao clients;
+
+    @Autowired
+    private AdvisorDao advisors;
+
+    @Autowired
+    private LoginDao login;
+
+    @RequestMapping(value = "/client/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public ModelAndView getClientInfo(final @PathVariable int id) {
+        final ClientDto client = clients.getById(id);
+        return new ModelAndView("client", "client", client);
+    }
+
+    @RequestMapping(value = "/faClient/{faId}", method = RequestMethod.GET)
+    public ModelAndView getFAClients(final @PathVariable Integer faId, final HttpServletResponse response) {
+        final Optional<List<ClientDto>> clients = advisors.getClientsByAdvisorId(faId);
+        if (!clients.isPresent()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return new ModelAndView();
+        } else {
+        	List<Integer> ids = new ArrayList<Integer>();
+        	for (ClientDto c : clients.get()) {
+        		ids.add(c.getClientId());
+        	}
+            return new ModelAndView("clients", "clients", ids);
+        }
+    }
+
+    @RequestMapping(value = "/client/add", method = RequestMethod.POST)
+    public ModelAndView addClient(@RequestBody AddClientDto request, final HttpServletResponse response) {
+
+        ClientDto clientData = new ClientDto();
+        LoginDto loginData = new LoginDto();
+        AdvisorDto advisorData = advisors.getById(request.getFaAdvisor());
+        if (advisorData == null) {
+        	 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        	 return new ModelAndView();
+        }
+
+        clientData.setName(request.getName());
+        clientData.setSurname(request.getSurname());
+        clientData.setAdvisor(advisorData);//advisors.getById(request.getFaId()));
+        clientData.setBalance(request.getCredit());
+        clientData.setIsFirstLogin(true);
+        loginData.setClient(clientData);
+        loginData.setFailedattempts(0);
+        loginData.setPinhash(String.valueOf(1234));
+        loginData.setPasswordhash("password");
+        loginData.setUsername(request.getUsername());
+
+        clients.create(clientData);
+        login.create(loginData);
+
+        //check client has been created
+        ClientDto checkClient = clients.getById(clientData.getClientId());
+        if (checkClient.getName().equals(request.getName())) {
+            return new ModelAndView("result","result", "Success");
+        } else {
+        	response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return new ModelAndView();
+        }
+
+    }
+}

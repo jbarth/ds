@@ -1,0 +1,90 @@
+package com.ubs.gtp.data.resource.client;
+
+import java.math.BigDecimal;
+
+/**
+ * DS response to add client request.
+ *
+ * @author Mihkel Aamer
+ * @since 0.1
+ */
+public final class AddClientResponseDto {
+
+    private String id;
+    private String username;
+    private String name;
+    private String surname;
+    private String password;
+    private String pin;
+    private BigDecimal credit;
+
+    public AddClientResponseDto() {
+    }
+
+    public AddClientResponseDto(final String id, final String username, final String name, final String surname,
+                                final String password, final String pin, final BigDecimal credit) {
+        this.id = id;
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.password = password;
+        this.pin = pin;
+        this.credit = credit;
+    }
+
+    public String getID() {
+        return id;
+    }
+
+    public void setID(String iD) {
+        id = iD;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public BigDecimal getCredit() {
+        return credit;
+    }
+
+    public void setCredit(BigDecimal credit) {
+        this.credit = credit;
+    }
+}

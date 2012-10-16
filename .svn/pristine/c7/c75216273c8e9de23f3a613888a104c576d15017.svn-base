@@ -1,0 +1,51 @@
+package com.ubs.gtp.data.resource.stock;
+
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+/**
+ * Controller for the stock resource.
+ *
+ * @author Jakub D Kozlowski
+ * @author Joshua.Barth
+ * @since 0.1
+ */
+@Controller
+@Transactional
+@Repository
+public class StockController {
+
+    @Autowired
+    private StockDAO stocks;
+
+    /**
+     * Gets the default {@link com.ubs.gtp.data.domain.instruments.StockDto}.
+     *
+     * @return default {@link com.ubs.gtp.data.domain.instruments.StockDto}.
+     */
+    @RequestMapping(value = "/stocks", method = RequestMethod.GET)
+    public ModelAndView getStocks() {
+        return new ModelAndView("stocks", "stocks", stocks.getAll());
+    }
+
+
+    /**
+     * Gets the default {@link com.ubs.gtp.data.domain.instruments.StockDto}.
+     *
+     * @return default {@link com.ubs.gtp.data.domain.instruments.StockDto}.
+     */
+    @RequestMapping(value = "/stock/{market}/{ric}", method = RequestMethod.GET)
+    @ResponseBody
+    public StockDto getStock(final @PathVariable String market, final @PathVariable String ric) {
+        return stocks.getByRic(ric);
+    }
+}

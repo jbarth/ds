@@ -1,0 +1,54 @@
+package com.ubs.gtp.data.domain.instruments;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Component;
+
+import com.ubs.gtp.data.domain.client.PortfolioItemDto;
+
+@Component
+public class PortfolioFixture {
+
+    @Resource
+    private SessionFactory factory;
+
+    public PortfolioItemDto injectPortfolioItem() {
+        StockDto dummyStock = injectDummyStock();
+
+        PortfolioItemDto pfItem = new PortfolioItemDto();
+
+        pfItem.setCashspent(BigDecimal.valueOf(1000));
+        pfItem.setLastTrx(new Date());
+        pfItem.setVolume(10);
+        //pfItem.setId(dummyStock.getId());
+
+        factory.getCurrentSession().persist(pfItem);
+
+        return pfItem;
+
+    }
+
+//	public PortfolioDto injectDummyPortfolio() {
+//		PortfolioDto pf = new PortfolioDto();
+//		
+//		pf.setClient(clientId)
+//	}
+
+    public StockDto injectDummyStock() {
+        StockDto stock = new StockDto();
+
+        stock.setName("Dummy stock");
+        stock.setPrice(new BigDecimal("2.0"));
+        stock.setRic("DummyRic");
+        stock.setTimestamp(new Date());
+
+        factory.getCurrentSession().persist(stock);
+
+        return stock;
+    }
+
+}

@@ -1,0 +1,198 @@
+package com.ubs.gtp.data.security.resource;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.google.common.base.Optional;
+import com.ubs.gtp.data.domain.client.AdvisorDto;
+import com.ubs.gtp.data.domain.client.Client;
+import com.ubs.gtp.data.domain.client.ClientDto;
+import com.ubs.gtp.data.domain.client.ClientLoginDto;
+import com.ubs.gtp.data.domain.dao.AdvisorDao;
+import com.ubs.gtp.data.domain.dao.ClientDao;
+import com.ubs.gtp.data.domain.dao.ClientLoginDao;
+import com.ubs.gtp.data.domain.dao.PortfolioDao;
+import com.ubs.gtp.security.AuthenticationManager;
+import com.ubs.gtp.security.Hash;
+import com.ubs.gtp.security.wrapper.FailedAttempts;
+import com.ubs.gtp.security.wrapper.OldPasswordNewPassword;
+import com.ubs.gtp.security.wrapper.OldPinNewPin;
+
+/**
+ * Controller for managing client logins.
+ * This controller provides means to add, delete clients and to changes password, pin.
+ * 
+ * @author Willy Lai
+ * @since 0.1
+ */
+@Controller
+@Transactional
+@RequestMapping(value = "/admin/client")
+public class AdminClientController {
+
+	private static final transient Logger LOG = LoggerFactory.getLogger(AdminClientController.class);
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private ClientDao clients;
+
+	@Autowired
+	private AdvisorDao advisors;
+
+	@Autowired
+	private ClientLoginDao logins;
+
+	/**
+	 * Add a client
+	 * @param request
+	 * @param response
+	 * @return ModelAndView result
+	 */
+	@RequestMapping(method = RequestMethod.POST)
+	public ModelAndView addClient(@RequestBody Client request, final HttpServletResponse response) {
+		ClientDto clientData = new ClientDto();
+		ClientLoginDto clientLoginData = new ClientLoginDto();
+
+		if (request.getFaAdvisor() == null) {
+			response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+			return new ModelAndView("result", "result", "Failure");
+		}
+		Optional<AdvisorDto> advisorData = advisors.getById(request.getFaAdvisor());
+		if (!advisorData.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+			return new ModelAndView("result", "result", "Failure");
+		}
+
+		clientData.setName(request.getName());
+		clientData.setSurname(request.getSurname());
+		clientData.setAdvisor(advisorData.get()); // advisors.getById(request.getFaId()));
+		clientData.setBalance(request.getCredit());
+		clientData.setIsFirstLogin(true);
+		clients.create(clientData);
+		
+		clientLoginData.setUsername(request.getUsername());
+		clientLoginData.setClient(clientData);
+		clientLoginData.setPasswordHash(Hash.hash(request.getPassword(), request.getUsername()));
+		clientLoginData.setPinHash(Hash.hash(request.getPin(), request.getUsername()));
+		clientLoginData.setFailedAttempts(0);
+		logins.create(clientLoginData);
+
+		// check client has been created
+		final Optional<ClientDto> checkClient = clients.getById(clientData.getClientId());
+		if (!checkClient.isPresent() || checkClient.get().getName().equals(request.getName())) {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			return new ModelAndView("result", "result", "Success");
+		} else {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return new ModelAndView("result", "result", "Failure");
+		}
+	}
+
+	/**
+	 * Delete a client
+	 * @param request
+	 * @param response
+	 * @return ModelAndView result
+	 */
+	@RequestMapping(value ="/{username}", method = RequestMethod.DELETE)
+	public ModelAndView deleteClient(final @PathVariable String username, final HttpServletResponse response) {
+		Optional<ClientLoginDto> clientLoginData = logins.getById(username);
+		if (!clientLoginData.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return new ModelAndView("result", "result", "Failure");
+		} else {
+			Integer clientId = clientLoginData.get().getId();
+			logins.deleteById(username);
+			clients.deleteById(clientId);
+			response.setStatus(HttpServletResponse.SC_OK);
+			return new ModelAndView("result", "result", "Success");
+		}
+	}
+	
+	/**
+	 * Chanage client password
+	 * @param request
+	 * @param response
+	 * @return ModelAndView result
+	 */
+	@RequestMapping(value = "/{username}/password", method = RequestMethod.PUT)
+	public ModelAndView updateClientLoginPassword(final @PathVariable String username, @RequestBody OldPasswordNewPassword oldPwNewPw,
+			final HttpServletResponse response) {
+		Optional<ClientLoginDto> clientLoginData = logins.getById(username);
+		if (!clientLoginData.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return new ModelAndView();
+		} else {
+			if (authenticationManager.valueAndValueHashMatches(oldPwNewPw.getOld_pw(), clientLoginData.get())) {
+				clientLoginData.get().setPasswordHash(Hash.hash(oldPwNewPw.getNew_pw(), clientLoginData.get().getUsername()));
+				logins.update(clientLoginData.get());
+				response.setStatus(HttpServletResponse.SC_OK);
+				return new ModelAndView();
+			} else {
+				response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+				return new ModelAndView();
+			}
+		}
+	}
+
+	/**
+	 * Change client pin
+	 * @param request
+	 * @param response
+	 * @return ModelAndView result
+	 */
+	@RequestMapping(value = "/{username}/pin", method = RequestMethod.PUT)
+	@ResponseBody
+	public ModelAndView updateClientLoginPin(final @PathVariable String username, @RequestBody OldPinNewPin oldPinNewPin, final HttpServletResponse response) {
+		Optional<ClientLoginDto> clientLoginData = logins.getById(username);
+		if (!clientLoginData.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return new ModelAndView("result", "result", "Failed");
+		} else {
+			if (authenticationManager.valueAndValueHashMatches(oldPinNewPin.getOld_pin(), clientLoginData.get())) {
+				clientLoginData.get().setPinHash(Hash.hash(oldPinNewPin.getNew_pin(), clientLoginData.get().getUsername()));
+				logins.update(clientLoginData.get());
+				response.setStatus(HttpServletResponse.SC_OK);
+				return new ModelAndView("result", "result", "Success");
+			} else {
+				response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+				return new ModelAndView("result", "result", "Failed");
+			}
+		}
+	}
+
+	/**
+	 * Set failed login attempts.
+	 * @param request
+	 * @param response
+	 * @return ModelAndView result
+	 */
+	@RequestMapping(value = "/{username}/failed_attempts", method = RequestMethod.PUT)
+	@ResponseBody
+	public ModelAndView updateClientLoginFailedAttempts(final @PathVariable String username, @RequestBody FailedAttempts failedAttempts,
+			final HttpServletResponse response) {
+		Optional<ClientLoginDto> clientLoginData = logins.getById(username);
+		if (!clientLoginData.isPresent()) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return new ModelAndView("result", "result", "Failed");
+		} else {
+			clientLoginData.get().setFailedAttempts(failedAttempts.getFailed_attempts());
+			logins.update(clientLoginData.get());
+			response.setStatus(HttpServletResponse.SC_OK);
+			return new ModelAndView("result", "result", "Success");
+		}
+	}
+}

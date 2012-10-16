@@ -1,0 +1,49 @@
+package com.ubs.gtp.data.security.resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ubs.gtp.security.AuthenticationManager;
+import com.ubs.gtp.security.objects.AdvisorLogin;
+import com.ubs.gtp.security.wrapper.OldPasswordNewPassword;
+
+/**
+ * Controller for managing advisor logins.
+ * 
+ * @author Willy Lai
+ * @since 0.1
+ */
+@Controller
+@RequestMapping(value = "/admin/advisor")
+public class AdminAdvisorController {
+	
+	private static final transient Logger LOG = LoggerFactory.getLogger(AdminAdvisorController.class);
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@RequestMapping(value = "/", method = RequestMethod.POST)
+	@ResponseBody
+	public String addAdvisorLogin(@RequestBody AdvisorLogin advisorLogin) {
+		return "";
+	}
+	
+	@RequestMapping(value = "/{username}/password", method = RequestMethod.PUT)
+	@ResponseBody
+	public String updateAdvisorLoginPassword(@RequestBody OldPasswordNewPassword oldPwNewPw) {
+		return "";
+	}
+	
+	@RequestMapping(value = "/{username}/failed_attempts", method = RequestMethod.PUT)
+	@ResponseBody
+	public String updateAdvisorLoginFailedAttempts(@RequestBody OldPasswordNewPassword oldPwNewPw) {
+		return "";
+	}
+
+}

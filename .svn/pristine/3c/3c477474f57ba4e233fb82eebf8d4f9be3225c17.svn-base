@@ -1,0 +1,98 @@
+package com.ubs.gtp.data.resource.client;
+
+import com.ubs.gtp.data.domain.client.AdvisorDto;
+import com.ubs.gtp.data.domain.client.ClientDto;
+import com.ubs.gtp.data.domain.client.LoginDto;
+import com.ubs.gtp.data.domain.dao.AdvisorDao;
+import com.ubs.gtp.data.domain.dao.ClientDao;
+import com.ubs.gtp.data.domain.dao.LoginDao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Controller for the client resource.
+ *
+ * @author Joshua Barth
+ * @author Mihkel Aamer
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Controller
+@Transactional
+@Repository
+public class ClientController {
+
+    @Autowired
+    private ClientDao clients;
+    @Autowired
+    private AdvisorDao advisors;
+    @Autowired
+    private LoginDao login;
+
+    @RequestMapping(value = "/client/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public ModelAndView getClientInfo(final @PathVariable int id) {
+        final ClientDto client = clients.getById(id);
+        final SimpleDateFormat f = new SimpleDateFormat("dd-MMM-yyyy");
+        System.out.println(f.format(client.getPortfolios().iterator().next().getStartdate()));
+        return new ModelAndView("client", "client", client);
+    }
+
+    @RequestMapping(value = "/faClient/{faId}", method = RequestMethod.GET)
+    @ResponseBody
+    public List<Integer> getFAClients(final @PathVariable int faId) {
+
+        //DB CALL USING faId
+        List<Integer> clientIds = new ArrayList<Integer>();
+        clientIds.add(123);
+        clientIds.add(4566);
+
+        return clientIds;
+    }
+
+	@RequestMapping(value = "/client/add", method = RequestMethod.POST)
+	@ResponseBody
+	public String addClient(@RequestBody AddClientDto request)
+	{	
+		
+		ClientDto clientData = new ClientDto();
+		LoginDto loginData = new LoginDto();
+		AdvisorDto advisorData = advisors.getById(request.getFaAdvisor());
+		
+		clientData.setName(request.getName());
+		clientData.setSurname(request.getSurname());
+		clientData.setAdvisor(advisorData);//advisors.getById(request.getFaId()));
+		clientData.setBalance(request.getCredit());
+		clientData.setIsFirstLogin(true);
+		loginData.setClient(clientData);
+		loginData.setFailedattempts(0);
+		loginData.setPinhash(String.valueOf(1234));
+        loginData.setPasswordhash("password");
+		loginData.setUsername(request.getUsername());
+
+		clients.create(clientData);
+		login.create(loginData);
+        
+		//check client has been created
+		ClientDto checkClient = clients.getById(clientData.getClientId());
+        if (checkClient.getName().equals(request.getName())) {
+        	return "Success";
+        } else {
+        	return "Failure";
+        }
+		
+	}
+}

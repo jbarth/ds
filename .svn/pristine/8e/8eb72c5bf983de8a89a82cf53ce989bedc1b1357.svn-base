@@ -1,0 +1,98 @@
+package com.ubs.gtp.data.domain.instruments.live;
+
+public class StockPricev2 {
+
+	// Given symbol, get current stock price.
+	public static double price(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int p = input.indexOf("LastTradePriceOnly", 0);
+		int from = input.indexOf(">", p);
+		int to = input.indexOf("<", from);
+		String price = input.substring(from + 1, to);
+
+		return Double.parseDouble(price);
+	}
+
+	// Given symbol, get current stock price.
+	public static double open(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int o = input.indexOf("Open", 0);
+		int from = input.indexOf(">", o);
+		int to = input.indexOf("<", from);
+		String open = input.substring(from + 1, to);
+		if (open.isEmpty()) {
+			return (double) 0;
+		} else {
+			return Double.parseDouble(open);
+		}
+	}
+
+	// Given symbol, get current stock name.
+	public static String name(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int n = input.indexOf("Name", 0);
+		int from = input.indexOf(">", n);
+		int to = input.indexOf("<", from);
+		String name = input.substring(from + 1, to);
+		return name;
+	}
+
+	// Given symbol, get current stock EPS.
+	public static double EPS(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int eps = input.indexOf("EarningsShare", 0);
+		int from = input.indexOf(">", eps);
+		int to = input.indexOf("<", from);
+		String EPS = input.substring(from + 1, to);
+
+		return Double.parseDouble(EPS);
+	}
+
+	// Given symbol, get current stock Year High
+	public static double YearHigh(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int yh = input.indexOf("YearHigh", 0);
+		int from = input.indexOf(">", yh);
+		int to = input.indexOf("<", from);
+		String YearHigh = input.substring(from + 1, to);
+
+		return Double.parseDouble(YearHigh);
+	}
+
+	// Given symbol, get current stock Year Low
+	public static double YearLow(String symbol) {
+		In page = new In(
+				"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
+						+ symbol
+						+ "%22)&env=store://datatables.org/alltableswithkeys");
+		String input = page.readAll();
+		int yl = input.indexOf("YearLow", 0);
+		int from = input.indexOf(">", yl);
+		int to = input.indexOf("<", from);
+
+		String YearLow = input.substring(from + 1, to);
+
+		return Double.parseDouble(YearLow);
+	}
+
+}

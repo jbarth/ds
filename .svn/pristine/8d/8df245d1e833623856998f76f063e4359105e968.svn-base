@@ -1,0 +1,60 @@
+package com.ubs.gtp.data.resource.stock;
+
+import com.google.common.base.Optional;
+import com.ubs.gtp.data.domain.dao.JdbcDao;
+import com.ubs.gtp.data.domain.instruments.StockDAO;
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Controller for the {@code /stock} resource.
+ *
+ * @author Jakub D Kozlowski
+ * @author Joshua.Barth
+ * @since 0.1
+ */
+@Controller
+@Transactional
+@Repository
+public class StockController {
+
+    @Autowired
+    private StockDAO stocks;
+
+    /**
+     * Gets all {@link StockDto}s.
+     *
+     * @return all {@link StockDto}s.
+     */
+    @RequestMapping(value = "/stock", method = RequestMethod.GET)
+    public ModelAndView getStocks() {
+        return new ModelAndView("stocks", "stocks", stocks.getAll());
+    }
+
+    /**
+     * Gets the {@link StockDto} by {@code ric}.
+     *
+     * @param ric ric to get.
+     * @return {@link StockDto} for this {@code ric}.
+     */
+    @RequestMapping(value = "/stock/{ric}", method = RequestMethod.GET)
+    public ModelAndView getStockByRic(final @PathVariable String ric, final HttpServletResponse response) {
+        final Optional<StockDto> stockDto = stocks.getByRic(ric);
+        if (!stockDto.isPresent()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return new ModelAndView();
+        } else {
+            return new ModelAndView("stock", "stock", stockDto.get());
+        }
+    }
+}

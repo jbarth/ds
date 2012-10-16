@@ -1,0 +1,27 @@
+package com.ubs.gtp.data.domain.dao;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ubs.gtp.data.domain.AbstractHibernateDAO;
+import com.ubs.gtp.data.domain.client.AdvisorDto;
+
+
+/**
+ * Manages {@link AdvisorDto}.
+ *
+ * @author Joshua Barth
+ * @since 0.3
+ */
+@Repository
+@Transactional
+public class AdvisorDao extends AbstractHibernateDAO<AdvisorDto> {
+
+    /**
+     * Instantiates a new stocks dao.
+     */
+    public AdvisorDao() {
+        super(AdvisorDto.class);
+    }
+
+}

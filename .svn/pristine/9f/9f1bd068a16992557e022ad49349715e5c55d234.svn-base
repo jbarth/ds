@@ -1,0 +1,146 @@
+package com.ubs.gtp.security;
+
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.ubs.gtp.security.objects.AdvisorLogin;
+import com.ubs.gtp.security.objects.ClientLogin;
+import com.ubs.gtp.security.objects.UsernamePasswordHashLogin;
+import com.ubs.gtp.security.util.HibernateUtil;
+import com.ubs.gtp.security.wrapper.TokenWithId;
+
+/**
+ * The Authentication Manager provides methods to authenticate and validate user credentials.
+ * This class should be instantiated as a singleton.
+ *
+ * @author Willy Lai
+ * @since 0.1
+ */
+@Component
+public class AuthenticationManager {
+
+    private static final Logger LOG = Logger.getLogger(AuthenticationManager.class.getName());
+
+    @Autowired
+    private SessionManager sessionManager;
+
+    public AuthenticationManager() {
+        LOG.log(Level.SEVERE, "AuthenticationManager created asdfasd fasd fasd fa sd");
+    }
+
+    /**
+     * Created an AuthenticationManager assigning a sessionManagers
+     *
+     * @param sessionManager
+     */
+    public AuthenticationManager(SessionManager sessionManager) {
+        LOG.log(Level.SEVERE, "AuthenticationManager created asdfasd fasd fasd fa sd");
+        this.sessionManager = sessionManager;
+    }
+
+    /**
+     * Authenticates a user by username, password, pin
+     * This method should be used for login and session creation.
+     *
+     * @param username
+     * @param password
+     * @param pin
+     * @return
+     * @throws AuthenticationException
+     */
+    public TokenWithId authenticateClient(String username, String password, String pin) throws AuthenticationException {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        ClientLogin clientLogin = (ClientLogin) hibernateSession.get(ClientLogin.class, username);
+        hibernateSession.getTransaction().commit();
+        if (clientLogin == null) {
+            throw new AuthenticationException("User [" + username + "] does not exist.");
+        } else if (!passwordMatches(password, clientLogin)) {
+            throw new AuthenticationException("Password does not match.");
+        } else if (!pinMatches(pin, clientLogin)) {
+            throw new AuthenticationException("Pin does not match.");
+        }
+        // create a session if the sessionManager exists
+        if (sessionManager != null) {
+        	String token = sessionManager.createSession(clientLogin);
+            return new TokenWithId(token, clientLogin.getId());
+        } else {
+            return new TokenWithId("Login Successful.", clientLogin.getId());
+        }
+    }
+
+    /**
+     * Authenticates a user by username, pin
+     * This method should be used for actions, that require a saftey check.
+     * e.g. user want to buy/sell stocks.
+     *
+     * @param username
+     * @param pin
+     * @return
+     * @throws AuthenticationException
+     */
+    public boolean authenticateClientPin(String username, String pin) throws AuthenticationException {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        ClientLogin clientLogin = (ClientLogin) hibernateSession.get(ClientLogin.class, username);
+        hibernateSession.getTransaction().commit();
+        if (clientLogin == null) {
+            throw new AuthenticationException("User [" + username + "] does not exist.");
+        } else if (!pinMatches(pin, clientLogin)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Authenticates an advisor by username, password.
+     * This method should be used for login and session creation.
+     *
+     * @param username
+     * @param password
+     * @return
+     * @throws AuthenticationException
+     */
+    public TokenWithId authenticateAdvisor(String username, String password) throws AuthenticationException {
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().getCurrentSession();
+        hibernateSession.beginTransaction();
+        AdvisorLogin advisorLogin = (AdvisorLogin) hibernateSession.get(AdvisorLogin.class, username);
+        hibernateSession.getTransaction().commit();
+        if (advisorLogin == null) {
+            throw new AuthenticationException("User [" + username + "] does not exist.");
+        } else if (!passwordMatches(password, advisorLogin)) {
+            throw new AuthenticationException("Password does not match.");
+        }
+        // create a session if the sessionManager exists
+        if (sessionManager != null) {
+        	String token = sessionManager.createSession(advisorLogin);
+            return new TokenWithId(token, advisorLogin.getId());
+        } else {
+            return new TokenWithId("Login Successful.", advisorLogin.getId());
+        }
+    }
+
+
+    private boolean passwordMatches(String loginPassword, UsernamePasswordHashLogin usernamePasswordHashLogin) {
+        if (loginPassword != null) {
+            String hashedLoginPassword = Hash.hash(loginPassword, usernamePasswordHashLogin.getUsername());
+            return hashedLoginPassword.equals(usernamePasswordHashLogin.getPasswordHash());
+        } else {
+            return false;
+        }
+    }
+
+    private boolean pinMatches(String loginPin, ClientLogin clientLogin) {
+        if (loginPin != null) {
+            String hashedLoginPassword = Hash.hash(loginPin, clientLogin.getUsername());
+            return hashedLoginPassword.equals(clientLogin.getPinHash());
+        } else {
+            return false;
+        }
+    }
+
+}

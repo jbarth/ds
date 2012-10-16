@@ -1,0 +1,20 @@
+package com.ubs.gtp.data.domain;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+
+/**
+ * Manages {@link TransactionDto}.
+ *
+ * @author Mihkel Aamer
+ * @since 0.3
+ */
+@Repository
+@Transactional
+public class TransactionDao extends AbstractHibernateDAO<TransactionDto> {
+
+    public TransactionDao() {
+        super(TransactionDto.class);
+    }
+}

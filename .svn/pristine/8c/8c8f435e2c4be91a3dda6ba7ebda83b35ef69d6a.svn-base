@@ -1,0 +1,88 @@
+package com.ubs.gtp.data.domain;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+/**
+ * Entity for {@code STOCK_NEWS} table in the database.
+ *
+ * @author Mihkel Aamer
+ * @since 0.4
+ */
+@Entity
+@Table(name = "STOCK_NEWS")
+public class NewsDto implements Serializable {
+	
+    private static final long serialVersionUID = 1355933269423003948L;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "STOCK_ID", nullable = false)
+    private int stockid;
+    
+    @Transient
+    private String ric;
+    
+    @Column(name = "TIMESTAMP", nullable = false)
+    private Date timestamp;
+    
+    @Lob
+    @Column(name = "HEADLINE", nullable = false)
+    private String headline;
+    
+    @Lob
+    @Column(name = "CONTENTS", nullable = true)
+    private String contents;
+    
+    public NewsDto() {
+    }
+    
+	public int getStockid() {
+		return stockid;
+	}
+	public void setStockid(int stockid) {
+		this.stockid = stockid;
+	}
+	
+	public String getRic() {
+		return ric;
+	}
+
+	public void setRic(String ric) {
+		this.ric = ric;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+	public String getHeadline() {
+		return headline;
+	}
+	public void setHeadline(String headline) {
+		this.headline = headline;
+	}
+	public String getContents() {
+		return contents;
+	}
+	public void setContents(String contents) {
+		this.contents = contents;
+	}
+
+
+    
+    
+    
+}

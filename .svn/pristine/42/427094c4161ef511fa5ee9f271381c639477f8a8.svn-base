@@ -1,0 +1,75 @@
+package com.ubs.gtp.security.objects;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * 
+ * Session entity class, annotated with hibernate mappings.
+ * 
+ * @author Willy Lai
+ * @since 0.1
+ */
+
+@Entity
+@Table(name = "USER_SESSION")
+public class Session {
+
+	private String sessionToken;
+	private String username;
+	private String usertype;
+	private Date lastAccessedTime;
+	
+	public Session() {
+		
+	}
+	
+	public Session(String sessionToken, String username, String usertype, Date lastAccessedTime) {
+		this.sessionToken = sessionToken;
+		this.username = username;
+		this.usertype = usertype;
+		this.lastAccessedTime = lastAccessedTime;
+	}
+	
+	@Id
+	@Column(name = "SESSION_TOKEN")
+	public String getSessionToken() {
+		return sessionToken;
+	}
+	public void setSessionToken(String sessionToken) {
+		this.sessionToken = sessionToken;
+	}
+	
+	@Column(name = "USERNAME")
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	@Column(name = "USERTYPE")
+	public String getUsertype() {
+		return usertype;
+	}
+	public void setUsertype(String type) {
+		this.usertype = type;
+	}
+	
+	@Column(name = "LAST_ACCESS_TIME")
+	public Date getLastAccessedTime() {
+		return lastAccessedTime;
+	}
+	public void setLastAccessedTime(Date lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
+	}
+	
+	@Override
+	public String toString() {
+		return "Session["+getSessionToken()+","+getUsername()+","+getUsertype()+","+getLastAccessedTime()+"]";
+	}
+}

@@ -1,0 +1,176 @@
+package com.ubs.gtp.data.domain.client;
+
+import com.google.common.base.Objects;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import static com.google.common.base.Objects.ToStringHelper;
+
+/**
+ * Entity for {@code STOCK_HISTORY} table in the database.
+ *
+ * @author Jakub D Kozlowski
+ * @since 0.3
+ */
+@Entity
+@Table(name = "STOCK_HISTORY")
+public class StockHistoryDto implements Serializable {
+
+    private static final long serialVersionUID = 135173326942300345L;
+
+    @Id
+    @JsonIgnore
+    @Column(name = "STOCK_ID", nullable = false, insertable = false, updatable = false)
+    private Integer stockid;
+
+    @Column(name = "DAY_DATE", nullable = false)
+    private Date date;
+
+    @Column(name = "DAILY_MAX", nullable = false)
+    private BigDecimal dailymax;
+
+    @Column(name = "DAILY_MIN", nullable = false)
+    private BigDecimal dailymin;
+
+    @Column(name = "EOD_PRICE", nullable = false)
+    private BigDecimal eodprice;
+
+    @Column(name = "OPENING_PRICE", nullable = false)
+    private BigDecimal openingprice;
+
+    /**
+     * Empty constructor.
+     */
+    public StockHistoryDto() {
+    }
+
+    /**
+     * Gets the stockid.
+     *
+     * @return the stockid.
+     */
+    public Integer getStockid() {
+        return stockid;
+    }
+
+    /**
+     * Sets the stockid.
+     *
+     * @param stockId new stockid.
+     */
+    public void setStock(final Integer stockId) {
+        this.stockid = stockId;
+    }
+
+    /**
+     * Gets the eodprice.
+     *
+     * @return the eodprice.
+     */
+    public BigDecimal getEodprice() {
+        return eodprice;
+    }
+
+    /**
+     * Sets the eodprice.
+     *
+     * @param eodprice new eodprice.
+     */
+    public void setEodprice(final BigDecimal eodprice) {
+        this.eodprice = eodprice;
+    }
+
+    /**
+     * Gets the dailymin.
+     *
+     * @return the dailymin.
+     */
+    public BigDecimal getDailymin() {
+        return dailymin;
+    }
+
+    /**
+     * Sets the dailymin.
+     *
+     * @param dailymin new dailymin.
+     */
+    public void setDailymin(final BigDecimal dailymin) {
+        this.dailymin = dailymin;
+    }
+
+    /**
+     * Gets the dailymax.
+     *
+     * @return the dailymax.
+     */
+    public BigDecimal getDailymax() {
+        return dailymax;
+    }
+
+    /**
+     * Sets the dailymax.
+     *
+     * @param dailymax new dailymax.
+     */
+    public void setDailymax(final BigDecimal dailymax) {
+        this.dailymax = dailymax;
+    }
+
+    /**
+     * Gets the date.
+     *
+     * @return the date.
+     */
+    public Date getDate() {
+        return date;
+    }
+
+    /**
+     * Sets the date.
+     *
+     * @param date new date.
+     */
+    public void setDate(final Date date) {
+        this.date = date;
+    }
+
+    /**
+     * Gets the opening price.
+     *
+     * @return the opening price.
+     */
+    public BigDecimal getOpeningprice() {
+        return openingprice;
+    }
+
+    /**
+     * Sets the opening price.
+     *
+     * @param openingprice new opening price.
+     */
+    public void setOpeningprice(final BigDecimal openingprice) {
+        this.openingprice = openingprice;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        final ToStringHelper toString = Objects.toStringHelper(this.getClass());
+        toString.add("stockId", stockid);
+        toString.add("date", date);
+        toString.add("dailymax", dailymax);
+        toString.add("dailymin", dailymin);
+        toString.add("eodprice", eodprice);
+        toString.add("openingprice", openingprice);
+        return toString.toString();
+    }
+}

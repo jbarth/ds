@@ -1,0 +1,83 @@
+package com.ubs.gtp.data.security.filter;
+
+import com.ubs.gtp.security.SessionManager;
+import com.ubs.gtp.security.objects.Login;
+import com.ubs.gtp.security.util.ApiPathUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Authentication Filter that intercepts the REST requests to Data Services and
+ * validates the token.
+ *
+ * @author Willy Lai
+ * @since 0.1
+ */
+@Component
+public class AuthenticationFilter implements Filter {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(AuthenticationFilter.class);
+
+    @Autowired
+    private SessionManager sessionManager;
+
+    public void destroy() {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * Filter method implementation, that checks whether a token exist, and if it exists, whether it is valid.
+     */
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequestWrapper request = new HttpServletRequestWrapper((HttpServletRequest) servletRequest);
+        HttpServletResponseWrapper response = new HttpServletResponseWrapper((HttpServletResponse) servletResponse);
+        List<String> paths = ApiPathUtil.getApiPath(request.getRequestURL().toString());
+        String sessionToken = request.getHeader("Authorization");
+        // check whether session token is in header
+        if (sessionToken == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            LOG.info("Session Token: " + sessionToken);
+            // check whether session is valid
+            boolean isValidSession = sessionManager.validateSession(sessionToken);
+            if (isValidSession) {
+                LOG.info("Session is valid.");
+                if (paths.size() > 1) {
+                    if ("client".equals(paths.get(0))) {
+                        String client = paths.get(1);
+                        Login login = sessionManager.getLogin(sessionToken);
+                        if (client.equals(login.getId())) {
+                            filterChain.doFilter(servletRequest, servletResponse);
+                        } else {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        }
+                    } else {
+                        filterChain.doFilter(servletRequest, servletResponse);
+                    }
+                } else {
+                    filterChain.doFilter(servletRequest, servletResponse);
+                }
+            } else {
+                LOG.info("Session is invalid.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        }
+    }
+
+    public void init(FilterConfig arg0) throws ServletException {
+        // TODO Auto-generated method stub
+
+    }
+
+}

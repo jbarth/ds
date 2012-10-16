@@ -1,0 +1,7 @@
+package com.ubs.gtp.data.domain.instruments.live;
+
+public interface LivePriceService {
+	
+	void loadStocksFromFile(String filename);
+
+}

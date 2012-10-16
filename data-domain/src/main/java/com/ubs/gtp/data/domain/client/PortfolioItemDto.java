@@ -1,0 +1,143 @@
+package com.ubs.gtp.data.domain.client;
+
+import com.ubs.gtp.data.domain.instruments.StockDto;
+import org.codehaus.jackson.annotate.JsonBackReference;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+
+/**
+ * Entity for {@code PORTFOLIO_ITEM} table in the database.
+ *
+ * @author Joshua.Barth
+ * @author Mihkel Aamer
+ * @author Jakub D Kozlowski
+ * @version since 0.3
+ */
+@Entity
+@Table(name = "PORTFOLIO_ITEM")
+public class PortfolioItemDto implements Serializable {
+
+    private static final long serialVersionUID = 1125933269423003948L;
+
+    @JsonIgnore
+    @EmbeddedId
+    private PortfolioItemDtoKey id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "STOCK_ID", nullable = false, insertable = false, updatable = false)
+    private StockDto stock;
+
+    @JsonBackReference
+    @OneToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "PORTFOLIO_ID", nullable = false, insertable = false, updatable = false)
+    private PortfolioDto portfolio;
+
+    @Column(name = "VOLUME", nullable = false)
+    private Integer volume;
+
+    @Column(name = "AVG_BUYING_PRICE", nullable = false)
+    private BigDecimal avgbuyingprice;
+
+    @Column(name = "LAST_TRX_TIMESTAMP", nullable = false)
+    private Date lastTrx;
+
+    /**
+     * Empty constructor.
+     */
+    public PortfolioItemDto() {
+    }
+
+    public PortfolioItemDtoKey getId() {
+        return id;
+    }
+
+    public void setId(final PortfolioItemDtoKey id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the stock.
+     *
+     * @return the stock.
+     */
+    public StockDto getStock() {
+        return stock;
+    }
+
+    /**
+     * Sets the stock.
+     *
+     * @param stock new stock.
+     */
+    public void setStock(final StockDto stock) {
+        this.stock = stock;
+    }
+
+    /**
+     * Gets the volume.
+     *
+     * @return the volume.
+     */
+    public Integer getVolume() {
+        return volume;
+    }
+
+    /**
+     * Sets the volume.
+     *
+     * @param volume new volume.
+     */
+    public void setVolume(final Integer volume) {
+        this.volume = volume;
+    }
+
+    /**
+     * Gets the cashspent.
+     *
+     * @return the cashspent.
+     */
+    public BigDecimal getAvgBuyingPrice() {
+        return avgbuyingprice;
+    }
+
+    /**
+     * Sets the cashspent.
+     *
+     * @param cashspent new cashspent.
+     */
+    public void setAvgBuyingPrice(final BigDecimal avgbuyingprice) {
+        this.avgbuyingprice = avgbuyingprice;
+    }
+
+    /**
+     * Gets the lastTrx.
+     *
+     * @return the lastTrx.
+     */
+    public Date getLastTrx() {
+        return lastTrx;
+    }
+
+    /**
+     * Sets the lastTrx.
+     *
+     * @param lastTrx new lastTrx.
+     */
+    public void setLastTrx(final Date lastTrx) {
+        this.lastTrx = lastTrx;
+    }
+
+    public PortfolioDto getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(PortfolioDto portfolio) {
+        this.portfolio = portfolio;
+    }
+}
+

@@ -1,0 +1,24 @@
+package com.ubs.gtp.data.source;
+
+import java.util.logging.Level;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+
+import java.util.logging.Logger;
+
+/**
+ * Updates prices from {@code http://uk.finance.yahoo.com/}.
+ *
+ * @author Jakub D Kozlowski
+ * @since 0.1
+ */
+public class UpdatePricesJob extends QuartzJobBean {
+
+    private static final Logger log = Logger.getLogger(UpdatePricesJob.class.getName());
+
+    @Override
+    protected void executeInternal(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        log.log(Level.SEVERE, "Hello World!");
+    }
+}

@@ -1,0 +1,16 @@
+package com.ubs.gtp.data.domain.instruments;
+
+import javax.annotation.Resource;
+
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ClientFixture {
+
+	@Resource
+	private SessionFactory factory;
+	
+	
+	
+}
